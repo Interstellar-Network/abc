@@ -8,7 +8,7 @@ message(WARNING "extract_var : ABC_CFLAGS : ${ABC_CFLAGS}")
 # eg: -Wall;-Wno-unused-function;-Wno-write-strings;-Wno-sign-compare;-DLIN64;-DSIZEOF_VOID_P=8;-DSIZEOF_LONG=8;-DSIZEOF_INT=4;-DABC_USE_CUDD=1;-DABC_USE_READLINE;-DABC_USE_PTHREADS
 message(WARNING "extract_var : ABC_CXXFLAGS : ${ABC_CXXFLAGS}")
 
-set(LIB_ABC "libabc-pic")
+set(LIB_ABC "libabc")
 set_target_properties(${LIB_ABC} PROPERTIES EXCLUDE_FROM_ALL OFF)
 
 # TODO? ALTERNATIVE: custom target, that way deps are properly using CMake instead of raw flags
@@ -49,6 +49,18 @@ set_target_properties(${LIB_ABC} PROPERTIES EXCLUDE_FROM_ALL OFF)
 #     target_include_directories(${LIB_ABC} PUBLIC ${Readline_INCLUDE_DIR})
 # endif()
 
+# if("-lpthread" IN_LIST ABC_LIBS)
+#     message(WARNING "extract_var : -lpthread")
+#         find_path(Readline_ROOT_DIR
+#         NAMES include/readline/readline.h
+#         REQUIRED
+#     )
+
+#     find_package(Threads)
+
+#     target_link_libraries(${LIB_ABC} PUBLIC Threads::Threads)
+# endif()
+
 
 ################################################################################
 # default to only DEB
@@ -64,6 +76,10 @@ install(TARGETS ${LIB_ABC} LIBRARY DESTINATION lib)
 # "CPackDeb Debug: Using only user-provided depends because package does not
 #   contain executable files that link to shared libraries."
 install(TARGETS abc RUNTIME DESTINATION bin)
+# NOTE: demo.c uses forward declaration instead of including a "public header" so it is a bit difficult to know
+# exactly what is public and what is not. So we just copy all headers...
+# MUST include/ with trailing slash to copy the CONTENT of include/ to the dest
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/ DESTINATION include/abc FILES_MATCHING PATTERN "*.h")
 
 set(CPACK_PACKAGE_CONTACT "dev@interstellar.gg")
 set(CPACK_STRIP_FILES ON)

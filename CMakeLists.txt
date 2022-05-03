@@ -1,5 +1,23 @@
 cmake_minimum_required(VERSION 3.3.0)
 
+################################################################################
+
+# for packaging we really need a .so
+# we CAN package a static lib, but in that case we need to also add a .pc or .cmake file
+# to be able to express "if you link with this, you also need "-lm -lpthead etc"
+# when using a shared lib ldd indeed show:
+# libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fa675379000)
+# libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fa67522a000)
+# libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fa675224000)
+# librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007fa67521a000)
+# while using a static lib:
+# /usr/bin/ld: /usr/lib/libabc-pic.a(cuddAnneal.c.o): in function `siftBackwardProb':
+# /.../abc/src/bdd/cudd/cuddAnneal.c:725: undefined reference to `exp'
+# etc
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
+################################################################################
+
 include(CMakeParseArguments)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
